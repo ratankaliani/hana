@@ -1,0 +1,8 @@
+target/
+data/
+optimism/
+tags
+
+# Added by cargo
+
+/target

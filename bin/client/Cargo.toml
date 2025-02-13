@@ -1,0 +1,33 @@
+[package]
+name = "hana-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy-consensus.workspace = true
+kona-preimage.workspace = true
+kona-proof.workspace = true
+kona-driver.workspace = true
+kona-executor.workspace = true
+kona-std-fpvm.workspace = true
+kona-std-fpvm-proc.workspace = true
+
+cfg-if.workspace = true
+
+alloy-primitives.workspace = true
+
+hana-oracle.workspace = true
+
+tracing.workspace = true
+
+thiserror.workspace = true
+
+kona-client = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
+
+[features]
+default = ["client-tracing"]
+client-tracing = ["kona-std-fpvm/tracing"]
+
+[[bin]]
+name = "hana"
+path = "src/hana.rs"

@@ -1,0 +1,22 @@
+[package]
+name = "hana-celestia"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+kona-derive.workspace = true
+
+# Op Alloy
+alloy-primitives.workspace = true
+alloy-rlp.workspace = true
+tracing.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
+maili-protocol.workspace = true
+celestia-types.workspace = true
+
+[features]
+default = []
+serde = [
+  "maili-protocol/serde",
+]
