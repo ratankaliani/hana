@@ -14,15 +14,15 @@ hana-oracle = { path = "crates/oracle", version = "0.1.0", default-features = fa
 # while we're still figuring out how to integrate with it.
 # Replace these version-based dependencies
 # Kona dependencies - use pre-maili commit
-kona-mpt = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-derive = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-driver = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-executor = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-proof = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-std-fpvm = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-preimage = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-std-fpvm-proc = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
-kona-providers-alloy = { git = "https://github.com/op-rs/kona", rev = "485785e", default-features = false }
+kona-mpt = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-derive = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-driver = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-executor = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-proof = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-std-fpvm = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-preimage = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-std-fpvm-proc = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
+kona-providers-alloy = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9", default-features = false }
 
 # Alloy
 alloy-rlp = { version = "^0.3.11", default-features = false }

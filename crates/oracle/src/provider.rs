@@ -32,10 +32,8 @@ impl<T: CommsClient + Sync + Send> CelestiaProvider for OracleCelestiaProvider<T
         encoded.extend_from_slice(&height.to_le_bytes());
         encoded.extend_from_slice(commitment.hash());
 
-        // See if we should perform blobstream verification logic here or in celestia.rs
         let hint = Hint::new(HintWrapper::CelestiaDA, encoded.clone());
 
-        // // Fix the error mapping here
         hint.send(&*self.oracle).await?;
 
         let data = self
