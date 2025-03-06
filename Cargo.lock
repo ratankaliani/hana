@@ -91,6 +91,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "alloy-contract"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee6180fb232becdea70fad57c63b6967f01f74ab9595671b870f504116dd29de"
+dependencies = [
+ "alloy-dyn-abi",
+ "alloy-json-abi",
+ "alloy-network",
+ "alloy-network-primitives",
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types-eth",
+ "alloy-sol-types",
+ "alloy-transport",
+ "futures",
+ "futures-util",
+ "thiserror 2.0.11",
+]
+
+[[package]]
+name = "alloy-dyn-abi"
+version = "0.8.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "555896f0b8578adb522b1453b6e6cc6704c3027bd0af20058befdde992cee8e9"
+dependencies = [
+ "alloy-json-abi",
+ "alloy-primitives",
+ "alloy-sol-type-parser",
+ "alloy-sol-types",
+ "const-hex",
+ "itoa",
+ "serde",
+ "serde_json",
+ "winnow",
+]
+
+[[package]]
 name = "alloy-eip2124"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -954,6 +991,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 
 [[package]]
+name = "bincode"
+version = "1.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.69.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1168,8 +1214,7 @@ dependencies = [
 [[package]]
 name = "celestia-proto"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4429b21a37997c08390d6f8fc325d29b8e72f3dca39f7acfe48d639e2f82a553"
+source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
 dependencies = [
  "bytes",
  "prost",
@@ -1184,8 +1229,7 @@ dependencies = [
 [[package]]
 name = "celestia-rpc"
 version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc214d362b640e22d255b1c8684c0a364dd71b52c78d3203b40e19d4083df75a"
+source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
 dependencies = [
  "async-trait",
  "celestia-types",
@@ -1200,8 +1244,7 @@ dependencies = [
 [[package]]
 name = "celestia-types"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f374b7b5c9545815ff4aeaa66007abe0ed121626677880a001938a36c3a66a8"
+source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
 dependencies = [
  "base64",
  "bech32",
@@ -2105,11 +2148,16 @@ dependencies = [
 name = "hana-host"
 version = "0.1.0"
 dependencies = [
+ "alloy-contract",
  "alloy-primitives",
  "alloy-provider",
  "alloy-rlp",
  "alloy-rpc-client",
+ "alloy-rpc-types",
+ "alloy-sol-types",
+ "alloy-transport",
  "alloy-transport-http",
+ "alloy-trie",
  "anyhow",
  "async-trait",
  "celestia-rpc",
@@ -2142,7 +2190,9 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
+ "alloy-trie",
  "async-trait",
+ "bincode",
  "celestia-types",
  "hana-celestia",
  "kona-derive",
@@ -2152,6 +2202,7 @@ dependencies = [
  "maili-genesis",
  "maili-protocol",
  "maili-rpc",
+ "serde",
  "spin",
  "tracing",
 ]

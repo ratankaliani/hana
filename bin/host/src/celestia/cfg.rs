@@ -15,7 +15,7 @@ use kona_host::{
 use maili_genesis::RollupConfig;
 use serde::Serialize;
 
-use alloy_primitives::hex;
+use alloy_primitives::{hex, Address};
 use anyhow::{anyhow, Result};
 use kona_preimage::{
     BidirectionalChannel, Channel, HintReader, HintWriter, OracleReader, OracleServer,
@@ -23,7 +23,7 @@ use kona_preimage::{
 use kona_providers_alloy::{OnlineBeaconClient, OnlineBlobProvider};
 use kona_std_fpvm::{FileChannel, FileDescriptor};
 use op_alloy_network::Optimism;
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 use tokio::{
     sync::RwLock,
     task::{self, JoinHandle},
@@ -54,6 +54,9 @@ pub struct CelestiaCfg {
     /// Celestia Namespace to fetch data from
     #[clap(long, alias = "celestia-namespace", env)]
     pub namespace: Option<String>,
+    /// Blobstream Address to check inclusion against
+    #[clap(long, alias = "blobstream-address", env)]
+    pub blobstream_address: Option<String>,
 }
 
 impl CelestiaChainHost {
@@ -221,7 +224,12 @@ impl CelestiaChainHost {
         .expect("Invalid hex");
         let namespace = Namespace::new_v0(&namespace_bytes).expect("Invalid namespace");
 
-        let celestia_provider = OnlineCelestiaProvider::new(celestia_client, namespace);
+        let blobstream_address =
+            Address::from_str(&self.celestia_args.blobstream_address.as_ref().unwrap())
+                .expect("Invalid Blobstream Address");
+
+        let celestia_provider =
+            OnlineCelestiaProvider::new(celestia_client, namespace, blobstream_address);
 
         Ok(CelestiaChainProviders {
             inner_providers: SingleChainProviders {

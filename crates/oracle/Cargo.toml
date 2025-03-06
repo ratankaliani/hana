@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Workspace
 kona-preimage.workspace = true
 kona-driver.workspace = true
 kona-proof.workspace = true
@@ -12,12 +13,16 @@ kona-derive.workspace = true
 hana-celestia.workspace = true
 
 alloy-primitives.workspace = true
+alloy-trie.workspace = true
 
 spin.workspace = true
 alloy-rlp.workspace = true
 maili-protocol.workspace = true
 maili-genesis.workspace = true
 maili-rpc.workspace = true
+
+serde.workspace = true
+bincode.workspace = true
 
 # Celestia
 celestia-types.workspace = true
