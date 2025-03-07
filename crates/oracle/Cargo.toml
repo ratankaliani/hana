@@ -14,6 +14,10 @@ hana-celestia.workspace = true
 
 alloy-primitives.workspace = true
 alloy-trie.workspace = true
+alloy-sol-types.workspace = true
+alloy-contract.workspace = true
+alloy-provider.workspace = true
+alloy-rpc-types.workspace = true
 
 spin.workspace = true
 alloy-rlp.workspace = true
@@ -30,3 +34,5 @@ celestia-types.workspace = true
 tracing.workspace = true
 
 async-trait.workspace = true
+
+anyhow.workspace = true

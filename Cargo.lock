@@ -2188,9 +2188,14 @@ dependencies = [
 name = "hana-oracle"
 version = "0.1.0"
 dependencies = [
+ "alloy-contract",
  "alloy-primitives",
+ "alloy-provider",
  "alloy-rlp",
+ "alloy-rpc-types",
+ "alloy-sol-types",
  "alloy-trie",
+ "anyhow",
  "async-trait",
  "bincode",
  "celestia-types",
