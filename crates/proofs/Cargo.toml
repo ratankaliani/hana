@@ -1,0 +1,18 @@
+[package]
+name = "hana-proofs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hana-blobstream.workspace = true
+
+# Op Alloy
+alloy-primitives.workspace = true
+alloy-rpc-types.workspace = true
+alloy-sol-types.workspace = true
+alloy-provider.workspace = true
+
+tracing.workspace = true
+celestia-types.workspace = true
+celestia-rpc.workspace = true
+anyhow.workspace = true

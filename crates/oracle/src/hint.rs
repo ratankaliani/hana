@@ -1,6 +1,6 @@
-use core::fmt;
-use std::str::FromStr;
+use core::{fmt, str::FromStr};
 
+use alloc::string::String;
 use kona_proof::{errors::HintParsingError, HintType};
 // Add your HintWrapper
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

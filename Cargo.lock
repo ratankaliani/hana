@@ -2112,13 +2112,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "hana-blobstream"
+version = "0.1.0"
+dependencies = [
+ "alloy-contract",
+ "alloy-primitives",
+ "alloy-sol-types",
+ "alloy-trie",
+ "bincode",
+ "celestia-types",
+ "serde",
+]
+
+[[package]]
 name = "hana-celestia"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
- "alloy-rlp",
  "async-trait",
- "bytes",
  "celestia-types",
  "kona-derive",
  "maili-protocol",
@@ -2148,25 +2159,16 @@ dependencies = [
 name = "hana-host"
 version = "0.1.0"
 dependencies = [
- "alloy-contract",
  "alloy-primitives",
  "alloy-provider",
- "alloy-rlp",
- "alloy-rpc-client",
- "alloy-rpc-types",
- "alloy-sol-types",
- "alloy-transport",
- "alloy-transport-http",
- "alloy-trie",
  "anyhow",
  "async-trait",
  "celestia-rpc",
  "celestia-types",
  "clap",
- "hana-celestia",
  "hana-client",
  "hana-oracle",
- "kona-derive",
+ "hana-proofs",
  "kona-host",
  "kona-preimage",
  "kona-proof",
@@ -2174,9 +2176,7 @@ dependencies = [
  "kona-std-fpvm",
  "maili-genesis",
  "op-alloy-network",
- "op-alloy-rpc-types-engine",
  "proptest",
- "reqwest",
  "serde",
  "serde_json",
  "tokio",
@@ -2188,17 +2188,11 @@ dependencies = [
 name = "hana-oracle"
 version = "0.1.0"
 dependencies = [
- "alloy-contract",
  "alloy-primitives",
- "alloy-provider",
- "alloy-rlp",
- "alloy-rpc-types",
- "alloy-sol-types",
- "alloy-trie",
- "anyhow",
  "async-trait",
  "bincode",
  "celestia-types",
+ "hana-blobstream",
  "hana-celestia",
  "kona-derive",
  "kona-driver",
@@ -2209,6 +2203,21 @@ dependencies = [
  "maili-rpc",
  "serde",
  "spin",
+ "tracing",
+]
+
+[[package]]
+name = "hana-proofs"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-provider",
+ "alloy-rpc-types",
+ "alloy-sol-types",
+ "anyhow",
+ "celestia-rpc",
+ "celestia-types",
+ "hana-blobstream",
  "tracing",
 ]
 

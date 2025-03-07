@@ -1,16 +1,20 @@
 use alloc::boxed::Box;
+use alloc::string::ToString;
 use alloc::sync::Arc;
+use alloc::vec::Vec;
 use alloy_primitives::{keccak256, Bytes};
 use async_trait::async_trait;
 use celestia_types::Commitment;
+use hana_blobstream::blobstream::{encode_data_root_tuple, verify_data_commitment_storage};
 use hana_celestia::CelestiaProvider;
 use kona_preimage::errors::PreimageOracleError;
 use kona_preimage::{CommsClient, PreimageKey, PreimageKeyType};
 use kona_proof::errors::OracleProviderError;
 use kona_proof::Hint;
+use tracing::info;
 
 use crate::hint::HintWrapper;
-use crate::payload::{encode_data_root_tuple, verify_data_commitment_storage, OraclePayload};
+use crate::payload::OraclePayload;
 
 /// An oracle-backed da storage.
 #[derive(Debug, Clone)]
@@ -52,7 +56,7 @@ impl<T: CommsClient + Sync + Send> CelestiaProvider for OracleCelestiaProvider<T
             .expect("Failed to deserialize Celestia Oracle Payload");
 
         match payload.share_proof.verify(payload.data_root) {
-            Ok(_) => println!("Celestia blobs ShareProof succesfully verified"),
+            Ok(_) => info!("Celestia blobs ShareProof succesfully verified"),
             Err(err) => {
                 return Err(OracleProviderError::Preimage(PreimageOracleError::Other(
                     err.to_string(),

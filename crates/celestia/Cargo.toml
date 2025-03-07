@@ -4,19 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Workspace
 kona-derive.workspace = true
 
-# Op Alloy
 alloy-primitives.workspace = true
-alloy-rlp.workspace = true
-tracing.workspace = true
-async-trait.workspace = true
-bytes.workspace = true
+
 maili-protocol.workspace = true
+
+
+# Celestia
 celestia-types.workspace = true
 
-[features]
-default = []
-serde = [
-  "maili-protocol/serde",
-]
+tracing.workspace = true
+
+async-trait.workspace = true

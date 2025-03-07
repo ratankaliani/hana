@@ -1,11 +1,12 @@
 //! [HintHandler] for the [CelestiaaChainHost].
 
-use alloy_primitives::keccak256;
+use alloy_primitives::{keccak256, Bytes};
 use anyhow::{ensure, Result};
 use async_trait::async_trait;
 use celestia_rpc::BlobClient;
 use celestia_types::Commitment;
-use hana_oracle::hint::HintWrapper;
+use hana_oracle::{hint::HintWrapper, payload::OraclePayload};
+use hana_proofs::blobstream_inclusion::get_blobstream_proof;
 use kona_host::{
     single::SingleChainHintHandler, HintHandler, OnlineHostBackendCfg, SharedKeyValueStore,
 };
@@ -66,12 +67,29 @@ impl HintHandler for CelestiaChainHintHandler {
                     Err(e) => anyhow::bail!("celestia blob not found: {:#}", e),
                 };
 
-                let payload = providers
-                    .celestia
-                    .generate_oracle_payload(providers.l1(), height, blob)
-                    .await?
-                    .to_bytes()
-                    .expect("failed to serialize celestia oracle payload");
+                let data = blob.data.clone();
+
+                let blobstream_proof = get_blobstream_proof(
+                    providers.celestia.client.as_ref(),
+                    providers.l1(),
+                    height,
+                    blob,
+                    providers.celestia.blobstream_address,
+                )
+                .await?;
+
+                let payload = OraclePayload::new(
+                    Bytes::from(data),
+                    blobstream_proof.data_root,
+                    blobstream_proof.data_commitment,
+                    blobstream_proof.data_root_tuple_proof,
+                    blobstream_proof.share_proof,
+                    blobstream_proof.proof_nonce,
+                    blobstream_proof.storage_root,
+                    blobstream_proof.storage_proof,
+                )
+                .to_bytes()
+                .expect("failed to serialize celestia oracle payload");
 
                 let mut kv_lock = kv.write().await;
 

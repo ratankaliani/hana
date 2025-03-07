@@ -6,6 +6,8 @@ members = ["bin/*", "crates/*"]
 # Workspace
 hana-client = { path = "bin/client", version = "0.1.0", default-features = false }
 hana-celestia = { path = "crates/celestia", version = "0.1.0", default-features = false }
+hana-proofs = { path = "crates/proofs", version = "0.1.0", default-features = false}
+hana-blobstream = { path = "crates/blobstream", version = "0.1.0", default-features = false}
 hana-oracle = { path = "crates/oracle", version = "0.1.0", default-features = false }
 
 # Kona

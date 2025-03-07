@@ -1,0 +1,16 @@
+[package]
+name = "hana-blobstream"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+# Op Alloy
+alloy-primitives.workspace = true
+alloy-sol-types.workspace = true
+alloy-trie.workspace = true
+alloy-contract.workspace = true
+
+bincode.workspace = true
+celestia-types.workspace = true
+serde.workspace = true
