@@ -114,7 +114,7 @@ pub async fn get_blobstream_proof(
     let ods_size: u64 = eds_size / 2;
 
     let index = blob.index.unwrap();
-    let first_row_index: u64 = index.div_ceil(eds_size) - 1;
+    let first_row_index: u64 = index / eds_size - 1;
     let start_index = blob.index.unwrap() - (first_row_index * ods_size);
     let end_index = start_index + blob.shares_len() as u64;
 
