@@ -1,12 +1,15 @@
 use alloc::boxed::Box;
-use alloc::string::ToString;
+use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use alloy_primitives::{keccak256, Bytes};
 use async_trait::async_trait;
 use celestia_types::Commitment;
-use hana_blobstream::blobstream::{encode_data_root_tuple, verify_data_commitment_storage};
+use hana_blobstream::blobstream::{
+    encode_data_root_tuple, find_pfb_with_commitment, verify_data_commitment_storage,
+};
 use hana_celestia::CelestiaProvider;
+use hashbrown::HashSet;
 use kona_preimage::errors::PreimageOracleError;
 use kona_preimage::{CommsClient, PreimageKey, PreimageKeyType};
 use kona_proof::errors::OracleProviderError;
@@ -54,6 +57,42 @@ impl<T: CommsClient + Sync + Send> CelestiaProvider for OracleCelestiaProvider<T
 
         let payload = OraclePayload::from_bytes(&oracle_result)
             .expect("Failed to deserialize Celestia Oracle Payload");
+
+        // throw the shares from our proof share into a hash_map then verify our namespace data
+        // contains the shares from our proof to our PFB
+        // NOTE: This will be simpliefied and removed to provide the exact shares in advance
+        // once compact share code is upstreamed to celestia_types crate
+        let proof_shares: HashSet<&[u8; 512]> = payload.share_proof.shares().iter().collect();
+
+        let mut found_shares = 0;
+
+        for row in &payload.pfb_data.rows {
+            for share in &row.shares {
+                if proof_shares.contains(share.data()) {
+                    found_shares += 1;
+                }
+            }
+        }
+
+        // Calculate remaining shares (if needed)
+        let remaining_shares = payload.share_proof.shares().len() - found_shares;
+        info!("Remaining shares: {:?}", remaining_shares);
+        if remaining_shares > 0 {
+            return Err(OracleProviderError::Preimage(PreimageOracleError::Other(
+                String::from("proof shares not found to be in namespace data"),
+            )));
+        }
+
+        let pfbs = find_pfb_with_commitment(&payload.pfb_data, &commitment)
+            .expect("Failed to find pfb with commitment");
+
+        for pfb in pfbs {
+            if pfb.0.share_commitments[0] != commitment.hash() {
+                return Err(OracleProviderError::Preimage(PreimageOracleError::Other(
+                    String::from("pfb did not contain the right commitment"),
+                )));
+            }
+        }
 
         match payload.share_proof.verify(payload.data_root) {
             Ok(_) => info!("Celestia blobs ShareProof succesfully verified"),

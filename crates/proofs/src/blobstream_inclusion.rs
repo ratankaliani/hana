@@ -1,14 +1,17 @@
 use alloc::{boxed::Box, vec::Vec};
-use alloy_primitives::{keccak256, Address, Bytes, B256};
+use alloy_primitives::{hex, keccak256, Address, Bytes as AlloyBytes, B256};
 use alloy_provider::{Provider, RootProvider};
 use alloy_rpc_types::{BlockNumberOrTag, Filter, FilterBlockOption, FilterSet};
 use alloy_sol_types::SolEvent;
 use celestia_rpc::{blobstream::BlobstreamClient, Client, HeaderClient, ShareClient};
-use celestia_types::Blob;
+use celestia_types::{nmt::Namespace, Blob};
 use hana_blobstream::blobstream::{
-    calculate_mapping_slot, encode_data_root_tuple, verify_data_commitment_storage,
-    BlobstreamProof, SP1Blobstream, SP1BlobstreamDataCommitmentStored, DATA_COMMITMENTS_SLOT,
+    calculate_mapping_slot, encode_data_root_tuple, find_pfb_with_commitment,
+    verify_data_commitment_storage, BlobstreamProof,
+    SP1Blobstream::{self},
+    SP1BlobstreamDataCommitmentStored, DATA_COMMITMENTS_SLOT,
 };
+
 use tracing::info;
 
 // Geth has a default of 5000 block limit for filters
@@ -106,84 +109,97 @@ pub async fn get_blobstream_proof(
 ) -> Result<BlobstreamProof, anyhow::Error> {
     // Fetch the block's data root
     let header = celestia_node.header_get_by_height(height).await?;
-
     let data_root = header.dah.hash();
 
-    let eds_row_roots = header.dah.row_roots();
-    let eds_size: u64 = eds_row_roots.len().try_into().unwrap();
-    let ods_size: u64 = eds_size / 2;
-
-    let index = blob.index.unwrap();
-    let first_row_index: u64 = index / eds_size - 1;
-    let start_index = blob.index.unwrap() - (first_row_index * ods_size);
-    let end_index = start_index + blob.shares_len() as u64;
-
-    let share_proof = celestia_node
-        .share_get_range(&header, start_index, end_index)
-        .await
-        .expect("Failed getting share proof")
-        .proof;
-
-    // validate the proof before placing it on the KV store
-    share_proof
-        .verify(data_root)
-        .expect("failed to verify share proof against data root");
-
-    let event = find_data_commitment(height, blobstream_address, l1_provider)
-        .await
-        .unwrap();
-
-    let data_root_proof = celestia_node
-        .get_data_root_tuple_inclusion_proof(height, event.start_block, event.end_block)
+    let namespace_data = celestia_node
+        .share_get_namespace_data(&header, Namespace::PAY_FOR_BLOB)
         .await?;
 
-    let encoded_data_root_tuple = encode_data_root_tuple(height, &data_root);
+    let pfb = find_pfb_with_commitment(&namespace_data, &blob.commitment)?;
 
-    data_root_proof
-        .verify(encoded_data_root_tuple, *event.data_commitment.clone())
-        .expect("failed to verify data root tuple inclusion proof");
+    for msg in pfb {
+        info!("Matched PFB: {:?}", msg);
+        info!(
+            "Commitment: {:?}, expected: {:?}",
+            hex::encode(msg.0.share_commitments[0].clone()),
+            hex::encode(blob.commitment.hash())
+        );
 
-    let slot = calculate_mapping_slot(DATA_COMMITMENTS_SLOT, event.proof_nonce);
+        info!("Start {:?} and End {:?}", msg.1 .0, msg.1 .1);
+        info!(
+            "Start u64 {:?} and End u64{:?}",
+            msg.1 .0 as u64, msg.1 .1 as u64
+        );
+        let shares_proof = celestia_node
+            .share_get_range(&header, msg.1 .0 as u64, msg.1 .1 as u64)
+            .await
+            .expect("Failed getting share proof");
 
-    let slot_b256 = B256::from_slice(slot.as_slice());
+        let share_proof = shares_proof.proof;
 
-    let proof_response = l1_provider
-        .get_proof(blobstream_address, vec![slot_b256])
-        .await?;
+        share_proof
+            .verify(data_root)
+            .expect("failed to verify share proof against data root");
 
-    let proof_bytes: Vec<Bytes> = proof_response
-        .storage_proof
-        .into_iter()
-        .flat_map(|proof| {
-            // Extract the proof field and apply any needed transformations
-            proof.proof.into_iter().map(|bytes| {
-                // You can apply transformations here if needed
-                // For example: Bytes::from(some_transformation(bytes))
-                // But in this case, we can just return the bytes directly
-                bytes
+        let event = find_data_commitment(height, blobstream_address, l1_provider)
+            .await
+            .unwrap();
+
+        let data_root_proof = celestia_node
+            .get_data_root_tuple_inclusion_proof(height, event.start_block, event.end_block)
+            .await?;
+
+        let encoded_data_root_tuple = encode_data_root_tuple(height, &data_root);
+
+        data_root_proof
+            .verify(encoded_data_root_tuple, *event.data_commitment.clone())
+            .expect("failed to verify data root tuple inclusion proof");
+
+        let slot = calculate_mapping_slot(DATA_COMMITMENTS_SLOT, event.proof_nonce);
+
+        let slot_b256 = B256::from_slice(slot.as_slice());
+
+        let proof_response = l1_provider
+            .get_proof(blobstream_address, vec![slot_b256])
+            .await?;
+
+        let proof_bytes: Vec<AlloyBytes> = proof_response
+            .storage_proof
+            .into_iter()
+            .flat_map(|proof| {
+                // Extract the proof field and apply any needed transformations
+                proof.proof.into_iter().map(|bytes| {
+                    // You can apply transformations here if needed
+                    // For example: Bytes::from(some_transformation(bytes))
+                    // But in this case, we can just return the bytes directly
+                    bytes
+                })
             })
-        })
-        .collect();
+            .collect();
 
-    match verify_data_commitment_storage(
-        proof_response.storage_hash,
-        proof_bytes.clone(),
-        event.proof_nonce,
-        event.data_commitment,
-    ) {
-        Ok(_) => {
-            println!("Succesfully verified storage proof for Blobstream data commitment");
+        match verify_data_commitment_storage(
+            proof_response.storage_hash,
+            proof_bytes.clone(),
+            event.proof_nonce,
+            event.data_commitment,
+        ) {
+            Ok(_) => {
+                println!("Succesfully verified storage proof for Blobstream data commitment");
 
-            return Ok(BlobstreamProof::new(
-                data_root,
-                event.data_commitment,
-                data_root_proof,
-                share_proof,
-                event.proof_nonce,
-                proof_response.storage_hash.clone(),
-                proof_bytes,
-            ));
+                return Ok(BlobstreamProof::new(
+                    data_root,
+                    event.data_commitment,
+                    data_root_proof,
+                    share_proof,
+                    namespace_data,
+                    event.proof_nonce,
+                    proof_response.storage_hash.clone(),
+                    proof_bytes,
+                ));
+            }
+            Err(err) => anyhow::bail!("Error verifying storage proof {}", err),
         }
-        Err(err) => anyhow::bail!("Error verifying storage proof {}", err),
     }
+
+    anyhow::bail!("could not find shares with pfb commitment")
 }

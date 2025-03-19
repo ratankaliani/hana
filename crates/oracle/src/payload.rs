@@ -1,6 +1,6 @@
 use alloc::{boxed::Box, vec::Vec};
 use alloy_primitives::{Bytes, FixedBytes, B256, U256};
-use celestia_types::{hash::Hash, MerkleProof, ShareProof};
+use celestia_types::{hash::Hash, row_namespace_data::NamespaceData, MerkleProof, ShareProof};
 use serde::{Deserialize, Serialize};
 
 /// A structure containing a Celestia Blob and its corresponding proofs
@@ -16,6 +16,8 @@ pub struct OraclePayload {
     pub data_root_tuple_proof: MerkleProof,
     /// The proof for the blob's inclusion
     pub share_proof: ShareProof,
+    /// The pfb namespace data for the shares with our PFB
+    pub pfb_data: NamespaceData,
     /// The proof_nonce in blobstream
     pub proof_nonce: U256,
     /// The storage root to verify against
@@ -32,6 +34,7 @@ impl OraclePayload {
         data_commitment: FixedBytes<32>,
         data_root_tuple_proof: MerkleProof,
         share_proof: ShareProof,
+        pfb_data: NamespaceData,
         proof_nonce: U256,
         storage_root: B256,
         storage_proof: Vec<Bytes>,
@@ -42,6 +45,7 @@ impl OraclePayload {
             data_commitment,
             data_root_tuple_proof,
             share_proof,
+            pfb_data,
             proof_nonce,
             storage_root,
             storage_proof,

@@ -11,6 +11,11 @@ alloy-sol-types.workspace = true
 alloy-trie.workspace = true
 alloy-contract.workspace = true
 
+sov-celestia-adapter.workspace = true
+celestia-proto.workspace = true
+anyhow.workspace = true
+bytes.workspace = true
+
 bincode.workspace = true
 celestia-types.workspace = true
 serde.workspace = true
