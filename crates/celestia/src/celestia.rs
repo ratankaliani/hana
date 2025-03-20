@@ -4,7 +4,7 @@ use crate::source::CelestiaDASource;
 use crate::traits::CelestiaProvider;
 
 use alloc::{boxed::Box, fmt::Debug};
-use alloy_primitives::Bytes;
+use alloy_primitives::{Address, Bytes};
 use async_trait::async_trait;
 use celestia_types::Commitment;
 use kona_derive::{
@@ -13,7 +13,7 @@ use kona_derive::{
     traits::{BlobProvider, ChainProvider, DataAvailabilityProvider},
     types::PipelineResult,
 };
-use maili_protocol::BlockInfo;
+use kona_protocol::BlockInfo;
 /// A factory for creating a Celestia data source provider.
 #[derive(Debug, Clone)]
 pub struct CelestiaDADataSource<C, B, A>
@@ -55,9 +55,16 @@ where
 {
     type Item = Bytes;
 
-    async fn next(&mut self, block_ref: &BlockInfo) -> PipelineResult<Self::Item> {
+    async fn next(
+        &mut self,
+        block_ref: &BlockInfo,
+        batcher_address: Address,
+    ) -> PipelineResult<Self::Item> {
         // Feth Blob pointer from the Ethereum Data Source
-        let pointer_data = self.ethereum_source.next(block_ref).await?;
+        let pointer_data = self
+            .ethereum_source
+            .next(block_ref, batcher_address)
+            .await?;
 
         if pointer_data[2] != 0x0c {
             // check if there's more appropirate error, since we just fetched a celestia batch that does not correspond to celestia

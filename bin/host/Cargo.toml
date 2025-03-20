@@ -14,6 +14,7 @@ kona-preimage = { workspace = true, features = ["std"] }
 kona-proof = { workspace = true, features = ["std"] }
 kona-providers-alloy.workspace = true
 kona-std-fpvm.workspace = true
+kona-genesis.workspace = true
 
 # Alloy
 alloy-provider = { workspace = true, features = ["reqwest"] }
@@ -22,8 +23,6 @@ alloy-primitives = { workspace = true, features = ["serde"] }
 # Op Alloy
 op-alloy-network.workspace = true
 
-# Maili
-maili-genesis = { workspace = true, features = ["std", "serde"] }
 
 # General
 serde = { workspace = true, features = ["derive"] }
@@ -39,7 +38,8 @@ tracing-subscriber = { workspace = true, features = ["fmt"] }
 celestia-types.workspace = true
 celestia-rpc.workspace = true
 
-kona-host = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.9"}
+kona-host = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.13"}
+kona-cli = { git = "https://github.com/op-rs/kona", tag = "kona-client/v0.1.0-beta.13"}
 
 [dev-dependencies]
 proptest.workspace = true

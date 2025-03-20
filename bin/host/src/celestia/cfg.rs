@@ -5,14 +5,15 @@
 use celestia_types::nmt::Namespace;
 use clap::Parser;
 use hana_oracle::hint::HintWrapper;
+use kona_genesis::RollupConfig;
 use kona_host::{
-    cli::cli_styles,
     eth::http_provider,
-    single::{SingleChainHost, SingleChainLocalInputs, SingleChainProviders},
+    single::{SingleChainHost, SingleChainHostError, SingleChainLocalInputs, SingleChainProviders},
     DiskKeyValueStore, MemoryKeyValueStore, OfflineHostBackend, OnlineHostBackend,
     OnlineHostBackendCfg, PreimageServer, SharedKeyValueStore, SplitKeyValueStore,
 };
-use maili_genesis::RollupConfig;
+
+use kona_cli::cli_styles;
 use serde::Serialize;
 
 use alloy_primitives::{hex, Address};
@@ -61,7 +62,7 @@ pub struct CelestiaCfg {
 
 impl CelestiaChainHost {
     /// Starts the [SingleChainHost] application.
-    pub async fn start(self) -> Result<()> {
+    pub async fn start(self) -> Result<(), SingleChainHostError> {
         if self.single_host.server {
             let hint = FileChannel::new(FileDescriptor::HintRead, FileDescriptor::HintWrite);
             let preimage =
@@ -74,21 +75,27 @@ impl CelestiaChainHost {
     }
 
     /// Starts the preimage server, communicating with the client over the provided channels.
-    pub async fn start_server<C>(&self, hint: C, preimage: C) -> Result<JoinHandle<Result<()>>>
+    pub async fn start_server<C>(
+        &self,
+        hint: C,
+        preimage: C,
+    ) -> Result<JoinHandle<Result<(), SingleChainHostError>>, SingleChainHostError>
     where
         C: Channel + Send + Sync + 'static,
     {
         let kv_store = self.create_key_value_store()?;
 
         let task_handle = if self.is_offline() {
-            task::spawn(
+            task::spawn(async {
                 PreimageServer::new(
                     OracleServer::new(preimage),
                     HintReader::new(hint),
                     Arc::new(OfflineHostBackend::new(kv_store)),
                 )
-                .start(),
-            )
+                .start()
+                .await
+                .map_err(SingleChainHostError::from)
+            })
         } else {
             let providers = self.create_providers().await?;
             let backend = OnlineHostBackend::new(
@@ -98,14 +105,16 @@ impl CelestiaChainHost {
                 CelestiaChainHintHandler,
             );
 
-            task::spawn(
+            task::spawn(async {
                 PreimageServer::new(
                     OracleServer::new(preimage),
                     HintReader::new(hint),
                     Arc::new(backend),
                 )
-                .start(),
-            )
+                .start()
+                .await
+                .map_err(SingleChainHostError::from)
+            })
         };
 
         Ok(task_handle)
@@ -113,7 +122,7 @@ impl CelestiaChainHost {
 
     /// Starts the host in native mode, running both the client and preimage server in the same
     /// process.
-    async fn start_native(&self) -> Result<()> {
+    async fn start_native(&self) -> Result<(), SingleChainHostError> {
         let hint = BidirectionalChannel::new()?;
         let preimage = BidirectionalChannel::new()?;
 
@@ -160,7 +169,7 @@ impl CelestiaChainHost {
     }
 
     /// Creates the key-value store for the host backend.
-    fn create_key_value_store(&self) -> Result<SharedKeyValueStore> {
+    fn create_key_value_store(&self) -> Result<SharedKeyValueStore, SingleChainHostError> {
         let local_kv_store = SingleChainLocalInputs::new(self.single_host.clone());
 
         let kv_store: SharedKeyValueStore = if let Some(ref data_dir) = self.single_host.data_dir {
@@ -178,49 +187,47 @@ impl CelestiaChainHost {
 
     /// Creates the providers required for the host backend.
     /// TODO: Diego, Add Celestia Chain Provider
-    async fn create_providers(&self) -> Result<CelestiaChainProviders> {
+    async fn create_providers(&self) -> Result<CelestiaChainProviders, SingleChainHostError> {
         let l1_provider = http_provider(
             self.single_host
                 .l1_node_address
                 .as_ref()
-                .ok_or(anyhow!("Provider must be set"))?,
+                .ok_or(SingleChainHostError::Other("Provider must be set"))?,
         );
         let blob_provider = OnlineBlobProvider::init(OnlineBeaconClient::new_http(
             self.single_host
                 .l1_beacon_address
                 .clone()
-                .ok_or(anyhow!("Beacon API URL must be set"))?,
+                .ok_or(SingleChainHostError::Other("Beacon API URL must be set"))?,
         ))
         .await;
         let l2_provider = http_provider::<Optimism>(
             self.single_host
                 .l2_node_address
                 .as_ref()
-                .ok_or(anyhow!("L2 node address must be set"))?,
+                .ok_or(SingleChainHostError::Other("L2 node address must be set"))?,
         );
 
-        let celestia_client = celestia_rpc::Client::new(
-            self.celestia_args
-                .celestia_connection
-                .as_ref()
-                .ok_or(anyhow!("Celestia connection must be set"))?,
-            Some(
-                self.celestia_args
-                    .auth_token
-                    .as_ref()
-                    .ok_or(anyhow!("Celestia auth token must be set"))?,
-            ),
-        )
-        .await
-        .expect("Failed creating rpc client");
+        let celestia_client =
+            celestia_rpc::Client::new(
+                self.celestia_args.celestia_connection.as_ref().ok_or(
+                    SingleChainHostError::Other("Celestia connection must be set"),
+                )?,
+                Some(
+                    self.celestia_args
+                        .auth_token
+                        .as_ref()
+                        .ok_or(SingleChainHostError::Other(
+                            "Celestia auth token must be set",
+                        ))?,
+                ),
+            )
+            .await
+            .expect("Failed creating rpc client");
 
-        let namespace_bytes = hex::decode(
-            &self
-                .celestia_args
-                .namespace
-                .as_ref()
-                .ok_or(anyhow!("Celestia Namespace must be set"))?,
-        )
+        let namespace_bytes = hex::decode(&self.celestia_args.namespace.as_ref().ok_or(
+            SingleChainHostError::Other("Celestia Namespace must be set"),
+        )?)
         .expect("Invalid hex");
         let namespace = Namespace::new_v0(&namespace_bytes).expect("Invalid namespace");
 

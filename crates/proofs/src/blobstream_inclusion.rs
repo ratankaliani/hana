@@ -1,7 +1,7 @@
 use alloc::{boxed::Box, vec::Vec};
 use alloy_primitives::{hex, keccak256, Address, Bytes as AlloyBytes, B256};
 use alloy_provider::{Provider, RootProvider};
-use alloy_rpc_types::{BlockNumberOrTag, Filter, FilterBlockOption, FilterSet};
+use alloy_rpc_types_eth::{BlockNumberOrTag, Filter, FilterBlockOption, FilterSet};
 use alloy_sol_types::SolEvent;
 use celestia_rpc::{blobstream::BlobstreamClient, Client, HeaderClient, ShareClient};
 use celestia_types::{nmt::Namespace, Blob};

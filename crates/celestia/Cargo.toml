@@ -6,11 +6,9 @@ edition = "2021"
 [dependencies]
 # Workspace
 kona-derive.workspace = true
+kona-protocol.workspace = true
 
 alloy-primitives.workspace = true
-
-maili-protocol.workspace = true
-
 
 # Celestia
 celestia-types.workspace = true

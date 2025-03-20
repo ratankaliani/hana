@@ -8,19 +8,14 @@ use alloy_trie::{
     Nibbles,
 };
 use anyhow::Error;
-use bytes::Bytes;
-use celestia_proto::{
-    celestia::blob::v1::MsgPayForBlobs, cosmos::tx::v1beta1::Tx, proto::blob::v1::IndexWrapper,
-};
+use celestia_proto::celestia::blob::v1::MsgPayForBlobs;
 use celestia_types::{
     hash::Hash, row_namespace_data::NamespaceData, Commitment, MerkleProof, ShareProof,
 };
 use serde::{Deserialize, Serialize};
 use sov_celestia_adapter::{
     parse_pfb_namespace,
-    shares::{NamespaceGroup, Share as SovShare, INFO_BYTE_LEN},
-    verifier::PFB_NAMESPACE,
-    TxPosition,
+    shares::{NamespaceGroup, Share as SovShare},
 };
 
 /////// Contract ///////

@@ -8,7 +8,7 @@ hana-blobstream.workspace = true
 
 # Op Alloy
 alloy-primitives.workspace = true
-alloy-rpc-types.workspace = true
+alloy-rpc-types-eth.workspace = true
 alloy-sol-types.workspace = true
 alloy-provider.workspace = true
 
