@@ -84,7 +84,6 @@ impl HintHandler for CelestiaChainHintHandler {
                     blobstream_proof.data_commitment,
                     blobstream_proof.data_root_tuple_proof,
                     blobstream_proof.share_proof,
-                    blobstream_proof.pfb_data,
                     blobstream_proof.proof_nonce,
                     blobstream_proof.storage_root,
                     blobstream_proof.storage_proof,
