@@ -211,14 +211,7 @@ impl CelestiaChainHost {
                 self.celestia_args.celestia_connection.as_ref().ok_or(
                     SingleChainHostError::Other("Celestia connection must be set"),
                 )?,
-                Some(
-                    self.celestia_args
-                        .auth_token
-                        .as_ref()
-                        .ok_or(SingleChainHostError::Other(
-                            "Celestia auth token must be set",
-                        ))?,
-                ),
+                self.celestia_args.auth_token.as_ref().map(|x| x.as_str()),
             )
             .await
             .expect("Failed creating rpc client");
