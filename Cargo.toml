@@ -96,9 +96,6 @@ revm = { version = "16.0.0", default-features = false }
 celestia-types = {git = "https://github.com/Ferret-san/lumina", rev = "25ae7d6" }
 celestia-rpc = {git = "https://github.com/Ferret-san/lumina", rev = "25ae7d6" }
 
-# K/V database
-rocksdb = { version = "0.22.0", default-features = false }
-
 [profile.dev]
 opt-level = 3
 
