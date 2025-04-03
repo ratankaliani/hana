@@ -1257,7 +1257,7 @@ dependencies = [
 [[package]]
 name = "celestia-proto"
 version = "0.7.0"
-source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
+source = "git+https://github.com/Ferret-san/lumina?rev=30ac899#30ac899cf15f1866c64fc3ebfd99b3bfa628863f"
 dependencies = [
  "bytes",
  "prost",
@@ -1271,10 +1271,11 @@ dependencies = [
 
 [[package]]
 name = "celestia-rpc"
-version = "0.9.0"
-source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
+version = "0.10.0"
+source = "git+https://github.com/Ferret-san/lumina?rev=30ac899#30ac899cf15f1866c64fc3ebfd99b3bfa628863f"
 dependencies = [
  "async-trait",
+ "base64",
  "celestia-types",
  "http",
  "jsonrpsee",
@@ -1286,8 +1287,8 @@ dependencies = [
 
 [[package]]
 name = "celestia-types"
-version = "0.10.0"
-source = "git+https://github.com/Ferret-san/lumina?rev=25ae7d6#25ae7d66028193e7fb267d971d0bea7b51d33244"
+version = "0.11.0"
+source = "git+https://github.com/Ferret-san/lumina?rev=30ac899#30ac899cf15f1866c64fc3ebfd99b3bfa628863f"
 dependencies = [
  "base64",
  "bech32",
