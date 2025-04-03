@@ -134,7 +134,7 @@ pub async fn get_blobstream_proof(
         .unwrap();
 
     let data_root_proof = celestia_node
-        .get_data_root_tuple_inclusion_proof(height, event.start_block, event.end_block)
+        .blobstream_get_data_root_tuple_inclusion_proof(height, event.start_block, event.end_block)
         .await?;
 
     let encoded_data_root_tuple = encode_data_root_tuple(height, &data_root);
