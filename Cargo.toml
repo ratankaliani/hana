@@ -96,8 +96,8 @@ unsigned-varint = "0.8.0"
 revm = { version = "16.0.0", default-features = false }
 
 # Celestia
-celestia-types = {git = "https://github.com/Ferret-san/lumina", rev = "25ae7d6" }
-celestia-rpc = {git = "https://github.com/Ferret-san/lumina", rev = "25ae7d6" }
+celestia-types = {git = "https://github.com/Ferret-san/lumina", rev = "30ac899" }
+celestia-rpc = {git = "https://github.com/Ferret-san/lumina", rev = "30ac899" }
 
 [profile.dev]
 opt-level = 3
