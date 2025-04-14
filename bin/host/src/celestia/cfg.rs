@@ -184,7 +184,6 @@ impl CelestiaChainHost {
     }
 
     /// Creates the providers required for the host backend.
-    /// TODO: Diego, Add Celestia Chain Provider
     async fn create_providers(&self) -> Result<CelestiaChainProviders, SingleChainHostError> {
         let l1_provider = http_provider(
             self.single_host
