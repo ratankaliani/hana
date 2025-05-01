@@ -284,6 +284,7 @@ impl ChainId {
         }
     }
 
+    /// The list of Blobstream addresses for each chain ID can be found here: https://docs.celestia.org/how-to-guides/blobstream#deployed-contracts.
     pub fn blostream_address(&self) -> Address {
         match self {
             Self::EthereumMainnet => {

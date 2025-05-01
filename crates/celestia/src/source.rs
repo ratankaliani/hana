@@ -22,6 +22,8 @@ where
     pub data: Vec<Bytes>,
     /// Whether the source is open.
     pub open: bool,
+
+    // TODO: Could add Chain ID here.
 }
 
 impl<C> CelestiaDASource<C>

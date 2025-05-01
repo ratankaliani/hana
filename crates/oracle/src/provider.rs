@@ -20,6 +20,10 @@ use crate::payload::OraclePayload;
 #[derive(Debug, Clone)]
 pub struct OracleCelestiaProvider<T: CommsClient> {
     oracle: Arc<T>,
+
+    // TODO: Could add Chain ID here.
+
+    // TODO: Store the L1 block hash.
 }
 
 impl<T: CommsClient + Clone> OracleCelestiaProvider<T> {
@@ -33,7 +37,7 @@ impl<T: CommsClient + Clone> OracleCelestiaProvider<T> {
 impl<T: CommsClient + Sync + Send> CelestiaProvider for OracleCelestiaProvider<T> {
     type Error = OracleProviderError;
 
-    async fn blob_get(&self, height: u64, commitment: Commitment) -> Result<Bytes, Self::Error> {
+    async fn blob_get(&self, height: u64, commitment: Commitment) -> Result<Bytes, Self::Error> { // blobstream_address
         let mut encoded = Vec::new();
         encoded.extend_from_slice(&height.to_le_bytes());
         encoded.extend_from_slice(commitment.hash());
@@ -78,6 +82,12 @@ impl<T: CommsClient + Sync + Send> CelestiaProvider for OracleCelestiaProvider<T
             payload.data_commitment,
         )
         .expect("Failed to verify data commitment against Blobstream storage slot");
+
+        // TODO: Check the storage root corresponds to the contract address for this chain id. [Not sure how to do this]
+
+        // TODO: Check that the storage root matches some block hash.
+
+        // Once the above is done, you need to link against an L1 block hash (e.g. the L1 head). The storage proof must be connected to the L1 block hash.
 
         Ok(payload.blob)
     }
